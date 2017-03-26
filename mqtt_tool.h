@@ -1,8 +1,8 @@
 #include <PubSubClient.h>
 
 const char* mqtt_server = "mqtt.cytron.tiscali.at";
-const char* mqtt_subtopic = "ATSH28/OG/Z1/SW+";
-const char* mqtt_pubtopic = "ATSH28/OG/Z1/SW1";
+const char* mqtt_subtopic = "ATSH28/OG/Z1/SW/+";
+const char* mqtt_pubtopic = "ATSH28/OG/Z1/SW/1";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -28,7 +28,7 @@ void callback_mqtt(char* topic, byte* payload, unsigned int length) {
       turnOn();
       break;
     case '2':
-      toggle();
+      //toggle();
       break;
   }
 }
