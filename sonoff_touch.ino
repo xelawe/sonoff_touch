@@ -111,7 +111,7 @@ void loop() {
             DebugPrintln("too short press - no action");
           } else if (duration < 5000) {
             DebugPrintln("short press - toggle relay");
-            toggle();
+            //toggle();
             pub_mqtt_toggle();
           } else if (duration < 10000) {
             DebugPrintln("medium press - reset");

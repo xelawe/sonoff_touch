@@ -28,7 +28,7 @@ void callback_mqtt(char* topic, byte* payload, unsigned int length) {
       turnOn();
       break;
     case '2':
-      //toggle();
+      toggle();
       break;
   }
 }
