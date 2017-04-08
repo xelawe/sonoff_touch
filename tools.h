@@ -1,3 +1,6 @@
+#ifndef TOOLS_H
+#define TOOLS_H
+
 #define SONOFF_BUTTON    0
 #define SONOFF_RELAY    12
 #define SONOFF_LED      13
@@ -36,11 +39,15 @@ void setState(int s) {
 
   digitalWrite(SONOFF_RELAY, relayState);
   if (relayState == relStateOFF) {
-//    digitalWrite(SONOFF_LED, LEDStateOFF);
+    //    digitalWrite(SONOFF_LED, LEDStateOFF);
+    client.publish(mqtt_pubtopic_rl, "0", true);
   }
   else {
-//    digitalWrite(SONOFF_LED, LEDStateON);
+    //    digitalWrite(SONOFF_LED, LEDStateON);
+    client.publish(mqtt_pubtopic_rl, "1", true);
   }
+
+
 
 }
 
@@ -70,3 +77,26 @@ void restart() {
 }
 
 
+void callback_mqtt(char* topic, byte* payload, unsigned int length) {
+  DebugPrint("Message arrived [");
+  DebugPrint(topic);
+  DebugPrint("] ");
+  for (int i = 0; i < length; i++) {
+    DebugPrint((char)payload[i]);
+  }
+  DebugPrintln();
+
+  // Switch on the LED if an 1 was received as first character
+  switch ((char)payload[0]) {
+    case '0':
+      turnOff();
+      break;
+    case '1':
+      turnOn();
+      break;
+    case '2':
+      toggle();
+      break;
+  }
+}
+#endif.

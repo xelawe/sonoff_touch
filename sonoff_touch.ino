@@ -35,11 +35,12 @@
 #define DebugPrintln(...) { }
 #endif
 
-#include "tools.h"
+
 #include "tools_wifiman.h"
 #include "ota_tool.h"
 #include <Ticker.h>
 #include "mqtt_tool.h"
+#include "tools.h"
 
 Ticker ticker;
 
@@ -90,7 +91,7 @@ void setup() {
   digitalWrite(SONOFF_LED, LEDStateON);
   turnOff();
 
-  init_mqtt();
+  init_mqtt(callback_mqtt);
 }
 
 void loop() {
