@@ -7,7 +7,7 @@ const char* mqtt_server = "mqtt.cytron.tiscali.at";
 const char* mqtt_subtopic_rl = "ATSH28/OG/Z1/RL/1/set";
 const char* mqtt_pubtopic_rl = "ATSH28/OG/Z1/RL/1/state";
 //const char* mqtt_subtopic = "ATSH28/OG/Z1/SW/+";
-const char* mqtt_pubtopic = "ATSH28/OG/Z1/RL/1/set";
+const char* mqtt_pubtopic = "ATSH28/OG/Z1/SW/1/set";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
