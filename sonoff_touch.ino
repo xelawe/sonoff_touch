@@ -44,21 +44,7 @@
 
 Ticker ticker;
 
-void reset() {
-  //reset settings to defaults
-  /*
-    WMSettings defaults;
-    settings = defaults;
-    EEPROM.begin(512);
-    EEPROM.put(0, settings);
-    EEPROM.end();
-  */
-  //reset wifi credentials
-  WiFi.disconnect();
-  delay(1000);
-  ESP.reset();
-  delay(1000);
-}
+
 
 void setup() {
 #ifdef serdebug
@@ -100,34 +86,7 @@ void loop() {
 
   check_mqtt();
 
-  switch (cmd) {
-    case CMD_WAIT:
-      break;
-    case CMD_BUTTON_CHANGE:
-      int currentState = digitalRead(SONOFF_BUTTON);
-      if (currentState != buttonState) {
-        if (buttonState == butStateON && currentState == butStateOFF) {
-          long duration = millis() - startPress;
-          if (duration < 10) {
-            DebugPrintln("too short press - no action");
-          } else if (duration < 5000) {
-            DebugPrintln("short press - toggle relay");
-            //toggle();
-            pub_mqtt_toggle();
-          } else if (duration < 10000) {
-            DebugPrintln("medium press - reset");
-            restart();
-          } else if (duration < 60000) {
-            DebugPrintln("long press - reset settings");
-            reset();
-          }
-        } else if (buttonState == butStateOFF && currentState == butStateON) {
-          startPress = millis();
-        }
-        buttonState = currentState;
-      }
-      break;
-  }
+  check_button( );
 
 }
 
