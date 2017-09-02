@@ -36,12 +36,13 @@
 #endif
 
 
-#include "tools_wifiman.h"
-#include "ota_tool.h"
+#include "cy_wifi.h"
+#include "cy_ota.h"
 #include <Ticker.h>
 #include "mqtt_tool.h"
 #include "tools.h"
 
+const char* gv_hostname = "sonoffT1";
 Ticker ticker;
 
 
@@ -65,9 +66,9 @@ void setup() {
   // start ticker with 0.5 because we start in AP mode and try to connect
   ticker.attach(0.6, tick);
 
-  wifi_init("sonoffT1");
+  wifi_init(gv_hostname);
 
-  init_ota("sonoffT1");
+  init_ota(gv_hostname);
 
   attachInterrupt(SONOFF_BUTTON, toggleState, CHANGE);
 

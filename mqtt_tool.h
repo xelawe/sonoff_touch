@@ -17,25 +17,25 @@ int value = 0;
 
 void reconnect_mqtt() {
   // Loop until we're reconnected
-  while (!client.connected()) {
-    DebugPrint("Attempting MQTT connection...");
-    // Attempt to connect
-    if (client.connect("sonofftouch")) {
-      DebugPrintln("connected");
-      // Once connected, publish an announcement, retained
-      //client.publish(mqtt_pubtopic, "hello world");
-      
-      // ... and resubscribe
-      //client.subscribe(mqtt_subtopic);
-      client.subscribe(mqtt_subtopic_rl);
-      } else {
-      DebugPrint("failed, rc=");
-      DebugPrint(client.state());
-      DebugPrintln(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      delay(5000);
-    }
+  //while (!client.connected()) {
+  DebugPrint("Attempting MQTT connection...");
+  // Attempt to connect
+  if (client.connect("sonofftouch")) {
+    DebugPrintln("connected");
+    // Once connected, publish an announcement, retained
+    //client.publish(mqtt_pubtopic, "hello world");
+
+    // ... and resubscribe
+    //client.subscribe(mqtt_subtopic);
+    client.subscribe(mqtt_subtopic_rl);
+  } else {
+    DebugPrint("failed, rc=");
+    DebugPrintln(client.state());
+    //DebugPrintln(" try again in 5 seconds");
+    // Wait 5 seconds before retrying
+    //delay(5000);
   }
+  //}
 }
 
 void init_mqtt(MQTT_CALLBACK_SIGNATURE) {
@@ -50,7 +50,7 @@ void check_mqtt() {
   client.loop();
 }
 
-void pub_mqtt_toggle(){
+void pub_mqtt_toggle() {
   client.publish(mqtt_pubtopic, "2");
 }
 
