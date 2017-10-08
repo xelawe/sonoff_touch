@@ -52,6 +52,8 @@ void setup() {
   Serial.begin(115200);
 #endif
 
+  DebugPrintln("\n" + String(__DATE__) + ", " + String(__TIME__) + " " + String(__FILE__));
+  
   // initialize the pushbutton pin as an input:
   pinMode(SONOFF_BUTTON, INPUT);
 

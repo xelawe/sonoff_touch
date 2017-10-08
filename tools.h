@@ -120,6 +120,7 @@ void check_button( ){
         }
         buttonState = currentState;
       }
+      cmd = CMD_WAIT;
       break;
   }
 }
