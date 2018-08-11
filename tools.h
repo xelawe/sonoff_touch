@@ -31,6 +31,9 @@ int buttonState = HIGH;
 
 static long startPress = 0;
 
+
+
+
 void reset() {
   //reset settings to defaults
   /*
@@ -107,6 +110,39 @@ void init_tools() {
   //set led pin as output
   pinMode(SONOFF_LED, OUTPUT);
 
+}
+
+void callback_mqtt1(char* topic, byte* payload, unsigned int length) {
+  DebugPrintln("Callback 1 - Set Relay");
+
+  String message_string = "";
+
+  for (int i = 0; i < length; i++) {
+    Serial.print((char)payload[i]);
+    //fill up the message string
+    message_string.concat((char)payload[i]);
+  }
+  Serial.println();
+
+  //map payload / commands
+  int shutter_cmd = 0;
+  if (message_string.equalsIgnoreCase("on")) {
+    turnOn();
+  }
+  else if (message_string.equalsIgnoreCase("off")) {
+    turnOff();
+  }
+  else if (message_string.equalsIgnoreCase("toggle")) {
+    toggle();
+  }
+  else {
+    Serial.print("Received illegal command message: ");
+    Serial.println(message_string.c_str());
+  }
+}
+
+
+void init_mqtt_local() {
   mqtt_pubtopic_rl_s += gv_clientname;
   mqtt_pubtopic_rl_s += '/';
   mqtt_pubtopic_rl_s += mqtt_pubtopic_rl_suff;
@@ -118,6 +154,10 @@ void init_tools() {
   mqtt_subtopic_rl_s += mqtt_subtopic_rl_suff;
   mqtt_subtopic_rl = (char*) mqtt_subtopic_rl_s.c_str();
   DebugPrintln(mqtt_subtopic_rl);
+
+  init_mqtt(gv_clientname);
+
+  add_subtopic(mqtt_subtopic_rl, callback_mqtt1);
 }
 
 void check_button( ) {
