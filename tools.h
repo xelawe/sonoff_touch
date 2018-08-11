@@ -5,13 +5,20 @@
 #define SONOFF_RELAY    12
 #define SONOFF_LED      13
 
-
 #define relStateOFF LOW
 #define relStateON HIGH
 #define LEDStateOFF HIGH
 #define LEDStateON LOW
 #define butStateOFF HIGH
 #define butStateON LOW
+
+const char* mqtt_pubtopic_rl_suff = "RL/1/state";
+const char* mqtt_subtopic_rl_suff = "RL/1/set";
+
+String mqtt_pubtopic_rl_s;
+const char* mqtt_pubtopic_rl;
+String mqtt_subtopic_rl_s;
+const char* mqtt_subtopic_rl;
 
 const int CMD_WAIT = 0;
 const int CMD_BUTTON_CHANGE = 1;
@@ -23,7 +30,6 @@ int relayState = relStateOFF;
 int buttonState = HIGH;
 
 static long startPress = 0;
-
 
 void reset() {
   //reset settings to defaults
@@ -57,14 +63,12 @@ void setState(int s) {
   digitalWrite(SONOFF_RELAY, relayState);
   if (relayState == relStateOFF) {
     //    digitalWrite(SONOFF_LED, LEDStateOFF);
-    client.publish(mqtt_pubtopic_rl, "0", true);
+    client.publish(mqtt_pubtopic_rl, "off", true);
   }
   else {
     //    digitalWrite(SONOFF_LED, LEDStateON);
-    client.publish(mqtt_pubtopic_rl, "1", true);
+    client.publish(mqtt_pubtopic_rl, "on", true);
   }
-
-
 
 }
 
@@ -93,8 +97,31 @@ void restart() {
   delay(1000);
 }
 
-void check_button( ){
-    switch (cmd) {
+void init_tools() {
+  // initialize the pushbutton pin as an input:
+  pinMode(SONOFF_BUTTON, INPUT);
+
+  //set relay pin as output
+  pinMode(SONOFF_RELAY, OUTPUT);
+
+  //set led pin as output
+  pinMode(SONOFF_LED, OUTPUT);
+
+  mqtt_pubtopic_rl_s += gv_clientname;
+  mqtt_pubtopic_rl_s += '/';
+  mqtt_pubtopic_rl_s += mqtt_pubtopic_rl_suff;
+  mqtt_pubtopic_rl = (char*) mqtt_pubtopic_rl_s.c_str();
+  DebugPrintln(mqtt_pubtopic_rl);
+
+  mqtt_subtopic_rl_s += gv_clientname;
+  mqtt_subtopic_rl_s += '/';
+  mqtt_subtopic_rl_s += mqtt_subtopic_rl_suff;
+  mqtt_subtopic_rl = (char*) mqtt_subtopic_rl_s.c_str();
+  DebugPrintln(mqtt_subtopic_rl);
+}
+
+void check_button( ) {
+  switch (cmd) {
     case CMD_WAIT:
       break;
     case CMD_BUTTON_CHANGE:
@@ -107,7 +134,7 @@ void check_button( ){
           } else if (duration < 5000) {
             DebugPrintln("short press - toggle relay");
             toggle();
-            pub_mqtt_toggle();
+            //pub_mqtt_toggle();
           } else if (duration < 10000) {
             DebugPrintln("medium press - reset");
             restart();
@@ -125,26 +152,4 @@ void check_button( ){
   }
 }
 
-void callback_mqtt(char* topic, byte* payload, unsigned int length) {
-  DebugPrint("Message arrived [");
-  DebugPrint(topic);
-  DebugPrint("] ");
-  for (int i = 0; i < length; i++) {
-    DebugPrint((char)payload[i]);
-  }
-  DebugPrintln();
-
-  // Switch on the LED if an 1 was received as first character
-  switch ((char)payload[0]) {
-    case '0':
-      turnOff();
-      break;
-    case '1':
-      turnOn();
-      break;
-    case '2':
-      toggle();
-      break;
-  }
-}
 #endif.

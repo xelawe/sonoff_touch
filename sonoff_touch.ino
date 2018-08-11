@@ -26,61 +26,69 @@
    gpio 13 - blue led - active low
 
 */
-#define serdebug
-#ifdef serdebug
-#define DebugPrint(...) {  Serial.print(__VA_ARGS__); }
-#define DebugPrintln(...) {  Serial.println(__VA_ARGS__); }
-#else
-#define DebugPrint(...) { }
-#define DebugPrintln(...) { }
-#endif
+#include <cy_serdebug.h>
+#include <cy_serial.h>
 
-
+const char *gc_hostname = "SonofTo";
 #include "cy_wifi.h"
 #include "cy_ota.h"
 #include <Ticker.h>
-#include "mqtt_tool.h"
+#include "cy_mqtt.h"
 #include "tools.h"
 
-const char* gv_hostname = "sonoffT1";
 Ticker ticker;
 
+void callback_mqtt1(char* topic, byte* payload, unsigned int length) {
+  DebugPrintln("Callback 1 - Set Relay");
 
+  String message_string = "";
+
+  for (int i = 0; i < length; i++) {
+    Serial.print((char)payload[i]);
+    //fill up the message string
+    message_string.concat((char)payload[i]);
+  }
+  Serial.println();
+
+  //map payload / commands
+  int shutter_cmd = 0;
+  if (message_string.equalsIgnoreCase("on")) {
+    turnOn();
+  }
+  else if (message_string.equalsIgnoreCase("off")) {
+    turnOff();
+  }
+  else if (message_string.equalsIgnoreCase("toggle")) {
+    toggle();
+  }
+  else {
+    Serial.print("Received illegal command message: ");
+    Serial.println(message_string.c_str());
+  }
+}
 
 void setup() {
-#ifdef serdebug
-  Serial.begin(115200);
-#endif
+  cy_serial::start(__FILE__);
 
-  DebugPrintln("\n" + String(__DATE__) + ", " + String(__TIME__) + " " + String(__FILE__));
-  
-  // initialize the pushbutton pin as an input:
-  pinMode(SONOFF_BUTTON, INPUT);
-
-  //set relay pin as output
-  pinMode(SONOFF_RELAY, OUTPUT);
-
-  //set led pin as output
-  pinMode(SONOFF_LED, OUTPUT);
+  init_tools();
 
   turnOff();
 
   // start ticker with 0.5 because we start in AP mode and try to connect
   ticker.attach(0.6, tick);
 
-  wifi_init(gv_hostname);
+  wifi_init(gc_hostname);
 
-  init_ota(gv_hostname);
+  init_ota(gv_clientname);
 
   attachInterrupt(SONOFF_BUTTON, toggleState, CHANGE);
 
-  //entered config mode, make led toggle faster
-  // ticker.attach(0.2, tick);
   ticker.detach( );
   digitalWrite(SONOFF_LED, LEDStateON);
   turnOff();
 
-  init_mqtt(callback_mqtt);
+  init_mqtt(gv_clientname);
+  add_subtopic(mqtt_subtopic_rl, callback_mqtt1);
 }
 
 void loop() {
